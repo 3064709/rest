@@ -20,7 +20,13 @@ use Yii;
 class Order extends \yii\db\ActiveRecord
 {
 
+    /**
+     *
+     */
     const DEFAULT_PRICE = 23.15;
+    /**
+     *
+     */
     const DEFAULT_USER_UNID = 0;
 
     /**
@@ -32,6 +38,9 @@ class Order extends \yii\db\ActiveRecord
         return self::DEFAULT_PRICE;
     }
 
+    /**
+     * @return int
+     */
     private function _getUserUnid()
     {
         return self::DEFAULT_USER_UNID;
@@ -79,15 +88,6 @@ class Order extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * @return array
-     */
-    public function fields()
-    {
-        return [
-            'order_id' => 'unid',
-        ];
-    }
 
 
     /**

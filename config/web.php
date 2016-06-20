@@ -18,11 +18,18 @@ $config = [
         'response' => [
             'class' => 'yii\web\Response',
             'on beforeSend' => function ($event) {
+
                 $response = $event->sender;
+
+                if ($response->statusCode === 201) {
+                    $response->data = [
+                        'order_id' => $response->data['unid'],
+                    ];
+                }
 
                 if (!$response->isSuccessful) {
                     $response->data = [
-                        'error' => 'error',
+                        'error' => true,
                         'message' => 'Data validation failed',
                     ];
                     $response->statusCode = 422;
@@ -36,6 +43,7 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
+            'enableSession' => false,
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
