@@ -14,11 +14,29 @@ use Yii;
  * @property integer $items
  * @property string $date
  * @property string $notes
- * @property integer $sum
+ * @property float $sum
  * @property integer $status
  */
 class Order extends \yii\db\ActiveRecord
 {
+
+    const DEFAULT_PRICE = 23.15;
+    const DEFAULT_USER_UNID = 0;
+
+    /**
+     * @return int
+     */
+    private function _getPrice()
+    {
+        //Get price from?
+        return self::DEFAULT_PRICE;
+    }
+
+    private function _getUserUnid()
+    {
+        return self::DEFAULT_USER_UNID;
+    }
+
     /**
      * @inheritdoc
      */
@@ -27,17 +45,19 @@ class Order extends \yii\db\ActiveRecord
         return 'order';
     }
 
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['items', 'sum', 'status'], 'integer'],
-            [['date'], 'safe'],
+            [['items'], 'integer'],
+            [['date'], 'date', 'format' => Yii::$app->params['dateFormat']],
+            [['notes'],'filter','filter'=>'\yii\helpers\HtmlPurifier::process'],
             [['notes'], 'string'],
             [['unid', 'service_unid', 'user_unid'], 'string', 'max' => 255],
-            [['service_unid',], 'required'],
+            [['service_unid', 'notes', 'date', 'items'], 'required'],
         ];
     }
 
@@ -59,6 +79,9 @@ class Order extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function fields()
     {
         return [
@@ -67,9 +90,40 @@ class Order extends \yii\db\ActiveRecord
     }
 
 
+    /**
+     * @return bool
+     */
+    public function beforeValidate()
+    {
+        $aliases = [
+            'service_id' => 'service_unid',
+            'order_items' => 'items',
+            'order_notes' => 'notes',
+        ];
+
+        $request = Yii::$app->request;
+
+        foreach ($aliases as $k => $v) {
+            if ($request->post($k)) {
+                $this->setAttribute($v, $request->post($k));
+            }
+        }
+
+        $this->setAttribute('date', "{$request->post('order_date')} {$request->post('order_time')}");
+        return parent::beforeValidate();
+    }
+
+
+    /**
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
-        $this->unid = md5(implode($this->getAttributes()) . time());
+        $this->unid = sha1(implode($this->getAttributes()) . time());
+        $this->sum = $this->_getPrice() * $this->items;
+        $this->user_unid= $this->_getUserUnid();
+
         return parent::beforeSave($insert);
     }
 }

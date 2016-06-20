@@ -14,6 +14,22 @@ $config = [
                 'application/json' => 'yii\web\JsonParser',
             ]
         ],
+
+        'response' => [
+            'class' => 'yii\web\Response',
+            'on beforeSend' => function ($event) {
+                $response = $event->sender;
+
+                if (!$response->isSuccessful) {
+                    $response->data = [
+                        'error' => 'error',
+                        'message' => 'Data validation failed',
+                    ];
+                    $response->statusCode = 422;
+                }
+            },
+        ],
+
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],

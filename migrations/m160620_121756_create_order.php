@@ -14,13 +14,13 @@ class m160620_121756_create_order extends Migration
     {
         $this->createTable('order', [
             'id' => $this->primaryKey(),
-            'unid' => $this->string(),
-            'service_unid' => $this->string(),
+            'unid' => $this->string()->unique(),
+            'service_unid' => $this->string(40),
             'user_unid' => $this->string(),
             'items' => $this->integer(),
-            'date' => $this->date(),
+            'date' => $this->dateTime(),
             'notes' => $this->text(),
-            'sum' => $this->integer(),
+            'sum' => $this->float(),
             'status' => $this->integer(1)->defaultValue(0),
         ]);
     }
