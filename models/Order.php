@@ -62,7 +62,14 @@ class Order extends \yii\db\ActiveRecord
     public function fields()
     {
         return [
-            'service_id' => 'service_unid',
+            'order_id' => 'unid',
         ];
+    }
+
+
+    public function beforeSave($insert)
+    {
+        $this->unid = md5(implode($this->getAttributes()) . time());
+        return parent::beforeSave($insert);
     }
 }
