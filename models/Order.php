@@ -54,8 +54,8 @@ class Order extends \yii\db\ActiveRecord
         return [
             [['items'], 'integer'],
             [['date'], 'date', 'format' => Yii::$app->params['dateFormat']],
-            [['notes'],'filter','filter'=>'\yii\helpers\HtmlPurifier::process'],
             [['notes'], 'string'],
+            [['notes'], 'filter', 'filter' => '\yii\helpers\HtmlPurifier::process'],
             [['unid', 'service_unid', 'user_unid'], 'string', 'max' => 255],
             [['service_unid', 'notes', 'date', 'items'], 'required'],
         ];
@@ -105,11 +105,11 @@ class Order extends \yii\db\ActiveRecord
 
         foreach ($aliases as $k => $v) {
             if ($request->post($k)) {
-                $this->setAttribute($v, $request->post($k));
+                $this->$v = $request->post($k);
             }
         }
 
-        $this->setAttribute('date', "{$request->post('order_date')} {$request->post('order_time')}");
+        $this->date = "{$request->post('order_date')} {$request->post('order_time')}";
         return parent::beforeValidate();
     }
 
@@ -122,7 +122,7 @@ class Order extends \yii\db\ActiveRecord
     {
         $this->unid = sha1(implode($this->getAttributes()) . time());
         $this->sum = $this->_getPrice() * $this->items;
-        $this->user_unid= $this->_getUserUnid();
+        $this->user_unid = $this->_getUserUnid();
 
         return parent::beforeSave($insert);
     }
